@@ -1,2 +1,3 @@
 # bts-ws
-一个 Bitshares 系统的访问工具库。
+
+一个开源的 Bitshares 系统的 WebSocket API SDK。
