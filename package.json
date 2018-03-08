@@ -1,14 +1,14 @@
 {
   "name": "bts-ws",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Bitshares system's WebSocket API SDK .",
   "main": "src/index.js",
   "browser": {
     "ws": false
   },
   "scripts": {
+    "build-node": "node npm.build.js",
     "build-browser": "webpack --mode production",
-    "build-node": "babel ./src --out-dir ./dist/nodejs",
     "test": "mocha --require babel-core/register --recursive",
     "ex-node": "babel-node examples/nodejs/index.js",
     "ex-browser": "npm run build-browser && start ./examples/browser/browser.html"
@@ -24,7 +24,10 @@
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "chai": "^4.1.2",
+    "chalk": "^2.3.2",
     "mocha": "^5.0.1",
+    "rimraf": "^2.6.2",
+    "shelljs": "^0.8.1",
     "webpack": "^4.0.1",
     "webpack-cli": "^2.0.9"
   },
