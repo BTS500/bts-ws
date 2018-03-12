@@ -31,7 +31,7 @@ class ChainWebSocket {
             this._rws = new RWebSocket(url, [], this.options);
             this._initDefaultListeners()._bypassRWSProperties();
         } catch (err) {
-            this._callback(err, null);
+            this._callback(err, null);  // An error occurred during the build process
         }
     }
 
@@ -101,7 +101,9 @@ class ChainWebSocket {
             let apiRequest = apiCallQueue.get(apiResult.id);
 
             if (!apiRequest) {
-                logger.log("An unknown WebSocket response object：" + apiResult);
+                setTimeout(() => {
+                    this._rws.emitEvent("error", new TypeError("An unknown WebSocket response object：" + apiResult));
+                }, 0);
                 return;
             }
 
@@ -117,7 +119,9 @@ class ChainWebSocket {
 
             apiCallQueue.delete(apiRequest.id);  // delete it，It has completed its mission
         } catch (error) {
-            logger.log("In order not to affect the operation, an error has been ignored：", error);
+            setTimeout(() => {
+                this._rws.emitEvent("error", error);
+            }, 0);
         }
     }
 
@@ -128,7 +132,8 @@ class ChainWebSocket {
     _rwsCloseListener(event) {
     }
 
-    _rwsErrorListener(event) {
+    _rwsErrorListener(error) {
+        logger.log("An error has occurred:", error);
     }
 
     _rwsDownListener(downEvent) {

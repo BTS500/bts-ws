@@ -24,7 +24,7 @@ class ApisInstance {
      */
     connect(callback) {
         if (typeof callback !== "function") {
-            throw new TypeError("callback parameters can only be a function type.");
+            throw new ReferenceError("callback parameters can only be a function type.");
         }
 
         if (!this.ws_url || !/^ws{1,2}:\/\//.test(this.ws_url.toLowerCase())) {
@@ -47,7 +47,6 @@ class ApisInstance {
             let err = new ReferenceError("‘connect’method allows only call once, if you need to reset the connection status, call the‘reconnect’method");
             return callback(err, null);
         }
-
     }
 
     /**
@@ -129,7 +128,7 @@ class ApisInstance {
     /**
      * Set the blockchain ID
      *
-     * @param chainResult ApiResult Type
+     * @param chainResult "get_chain_id" return result
      */
     static setChainId(chainResult) {
         if (singletonInst) {
@@ -139,6 +138,8 @@ class ApisInstance {
 
     /**
      * Get the default configuration items
+     *
+     * @return Object
      */
     static getDefaultOptions() {
         return defaultOptions;
@@ -146,6 +147,10 @@ class ApisInstance {
 
     /**
      * Static method, get a singleton instance
+     *
+     * @param url Connection address
+     * @param options Configuration parameters
+     * @return ApisInstance Singleton object
      */
     static instance(url = "ws://localhost:8090", options = {}) {
         options = Object.assign(this.getDefaultOptions(), options);
@@ -153,6 +158,8 @@ class ApisInstance {
 
         if (singletonInst === null) {
             singletonInst = new ApisInstance(url, options);
+        } else {
+            logger.log("Your configuration parameters have been abandoned. Please use the object properties to modify.");
         }
 
         return singletonInst;

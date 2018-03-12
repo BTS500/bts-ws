@@ -113,14 +113,14 @@ class RWebSocket {
         this.reconnectDelay = initReconnectionDelay(this.options);
         this.retriesCount = 0;
 
-        this._emitEvent("open", event);
+        this.emitEvent("open", event);
     }
 
     /**
      * WebSocket message event handle
      */
     _handleMessage(event) {
-        this._emitEvent("message", event);
+        this.emitEvent("message", event);
     }
 
     /**
@@ -134,11 +134,11 @@ class RWebSocket {
         logger.log("_handleClose retries count", this.retriesCount);
 
         if (this.retriesCount > this.options.maxRetries) {
-            return this._emitEvent("down", event);  // server is down
+            return this.emitEvent("down", event);  // server is down
         }
 
         if (Array.isArray(this.listeners.close)) {
-            this._emitEvent("close", event);
+            this.emitEvent("close", event);
         }
 
         if (!this.reconnectDelay) {
@@ -157,7 +157,17 @@ class RWebSocket {
      * WebSocket error event handle
      */
     _handleError(error) {
-        this._emitEvent("error", error);
+        this.emitEvent("error", error);
+    }
+
+    /**
+     * Clear connection timeout detection
+     */
+    _clearConnectingTimeout() {
+        if (this.connectingTimeout !== undefined && this.connectingTimeout !== null) {
+            clearTimeout(this.connectingTimeout);
+            this.connectingTimeout = null;
+        }
     }
 
     /**
@@ -165,7 +175,7 @@ class RWebSocket {
      * @param type Event Type
      * @param event Event Object
      */
-    _emitEvent(type, event) {
+    emitEvent(type, event) {
         if (Array.isArray(this.once_listeners[type])) {
             this.once_listeners[type] = this.once_listeners[type].filter(function (listener) {
                 let [callback, options] = listener;
@@ -178,16 +188,6 @@ class RWebSocket {
                 let [callback, options] = listener;
                 callback(event, options);
             });
-        }
-    }
-
-    /**
-     * Clear connection timeout detection
-     */
-    _clearConnectingTimeout() {
-        if (this.connectingTimeout !== undefined && this.connectingTimeout !== null) {
-            clearTimeout(this.connectingTimeout);
-            this.connectingTimeout = null;
         }
     }
 
