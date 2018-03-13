@@ -184,13 +184,13 @@ class ChainWebSocket {
         logger.log(`reconnect to ${this.ws_url},and keepEvent: ${keepEvent}`);
 
         this._clearDefaultListeners();
-        let oldListeners = this._rws.listeners;
+        let oldListeners = this._rws.keep_listeners;
         let oldOnceListeners = this._rws.once_listeners;
         this._init(this.ws_url, this.options, callback);
 
         if (keepEvent) {
             this._rws.assignEventListener(oldListeners);
-            this._rws.assignEventListener(oldOnceListeners);
+            this._rws.assignEventListener(oldOnceListeners, true);
         }
     }
 

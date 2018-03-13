@@ -10,6 +10,7 @@
     "build-node": "node npm.build.js",
     "build-browser": "webpack --mode production",
     "test": "mocha --require babel-core/register --recursive",
+    "test-RWebSocket": "mocha --require babel-core/register ./test/RWebSocket.test.js",
     "ex-node": "babel-node examples/nodejs/index.js",
     "ex-browser": "npm run build-browser && start ./examples/browser/browser.html"
   },

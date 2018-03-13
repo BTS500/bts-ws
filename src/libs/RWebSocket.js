@@ -59,7 +59,6 @@ class RWebSocket {
         this.ws_url = url;
         this.protocols = Array.isArray(protocols) ? protocols : [];
         this.options = Object.assign(getDefaultOptions(), options);
-
         if (!isWebSocket(this.options.constructor)) {
             throw new TypeError("The RWebSocket options parameter must include 'constructor'");
         }
@@ -69,7 +68,7 @@ class RWebSocket {
         this.reconnectDelay = 0;
         this.retriesCount = 0;
         this.shouldRetry = true;
-        this.listeners = {};
+        this.keep_listeners = {};
         this.once_listeners = {};
 
         this._connect();
@@ -137,7 +136,7 @@ class RWebSocket {
             return this.emitEvent("down", event);  // server is down
         }
 
-        if (Array.isArray(this.listeners.close)) {
+        if (Array.isArray(this.keep_listeners.close)) {
             this.emitEvent("close", event);
         }
 
@@ -183,8 +182,8 @@ class RWebSocket {
             });
         }
 
-        if (Array.isArray(this.listeners[type])) {
-            this.listeners[type].forEach(function (listener) {
+        if (Array.isArray(this.keep_listeners[type])) {
+            this.keep_listeners[type].forEach(function (listener) {
                 let [callback, options] = listener;
                 callback(event, options);
             });
@@ -236,16 +235,16 @@ class RWebSocket {
      * @param options expand object
      */
     addEventListener(type, listener, options = {}) {
-        if (Array.isArray(this.listeners[type])) {
-            if (!this.listeners[type].some(function (item) {
+        if (Array.isArray(this.keep_listeners[type])) {
+            if (!this.keep_listeners[type].some(function (item) {
                     let [callback] = item;
                     return callback === listener;   // Detection added repeatedly
                 })
             ) {
-                this.listeners[type].push([listener, options]);
+                this.keep_listeners[type].push([listener, options]);
             }
         } else {
-            this.listeners[type] = [[listener, options]];
+            this.keep_listeners[type] = [[listener, options]];
         }
     }
 
@@ -277,9 +276,9 @@ class RWebSocket {
      */
     assignEventListener(listeners, once = false) {
         let _this = this;
-        let target_listeners = this.listeners;
+        let target_listeners = _this.keep_listeners;
         if (once) {
-            target_listeners = this.once_listeners;
+            target_listeners = _this.once_listeners;
         }
 
         Object.keys(listeners).forEach(function (type) {
@@ -299,7 +298,7 @@ class RWebSocket {
     removeEventListener(type, listener) {
         if (type && !listener) {
             this.once_listeners[type] = [];
-            this.listeners[type] = [];
+            this.keep_listeners[type] = [];
             return;
         }
 
@@ -310,8 +309,8 @@ class RWebSocket {
             });
         }
 
-        if (Array.isArray(this.listeners[type])) {
-            this.listeners[type] = this.listeners[type].filter(function (item) {
+        if (Array.isArray(this.keep_listeners[type])) {
+            this.keep_listeners[type] = this.keep_listeners[type].filter(function (item) {
                 let [callback] = item;
                 return callback !== listener;
             });
