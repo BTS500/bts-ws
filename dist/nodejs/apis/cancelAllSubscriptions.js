@@ -12,7 +12,7 @@ var _ApiRequest2 = _interopRequireDefault(_ApiRequest);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
- * cancel all Subscriptions
+ * Cancel all Subscriptions
  */
 function funName() {
   return this.call(new _ApiRequest2.default("cancel_all_subscriptions"));

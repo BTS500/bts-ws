@@ -67,7 +67,7 @@ var ChainWebSocket = function () {
                 this._rws = new _RWebSocket2.default(url, [], this.options);
                 this._initDefaultListeners()._bypassRWSProperties();
             } catch (err) {
-                this._callback(err, null);
+                this._callback(err, null); // An error occurred during the build process
             }
         }
 
@@ -148,12 +148,16 @@ var ChainWebSocket = function () {
     }, {
         key: "_rwsMessageListener",
         value: function _rwsMessageListener(event) {
+            var _this3 = this;
+
             try {
                 var apiResult = new _ApiResult2.default(event.data);
                 var apiRequest = apiCallQueue.get(apiResult.id);
 
                 if (!apiRequest) {
-                    logger.log("An unknown WebSocket response object：" + apiResult);
+                    setTimeout(function () {
+                        _this3._rws.emitEvent("error", new TypeError("An unknown WebSocket response object：" + apiResult));
+                    }, 0);
                     return;
                 }
 
@@ -169,7 +173,9 @@ var ChainWebSocket = function () {
 
                 apiCallQueue.delete(apiRequest.id); // delete it，It has completed its mission
             } catch (error) {
-                logger.log("In order not to affect the operation, an error has been ignored：", error);
+                setTimeout(function () {
+                    _this3._rws.emitEvent("error", error);
+                }, 0);
             }
         }
     }, {
@@ -182,7 +188,9 @@ var ChainWebSocket = function () {
         value: function _rwsCloseListener(event) {}
     }, {
         key: "_rwsErrorListener",
-        value: function _rwsErrorListener(event) {}
+        value: function _rwsErrorListener(error) {
+            logger.log("An error has occurred:", error);
+        }
     }, {
         key: "_rwsDownListener",
         value: function _rwsDownListener(downEvent) {
@@ -210,15 +218,15 @@ var ChainWebSocket = function () {
     }, {
         key: "loginGraphene",
         value: function loginGraphene() {
-            var _this3 = this;
+            var _this4 = this;
 
             var graphene = new _GrapheneApi2.default(this);
             var apis = [];
             var _this = this;
             graphene.login().then(function () {
-                var db_init = new _GrapheneApi2.default(_this3, "database");
-                var hist_init = new _GrapheneApi2.default(_this3, "history");
-                var net_init = new _GrapheneApi2.default(_this3, "network_broadcast");
+                var db_init = new _GrapheneApi2.default(_this4, "database");
+                var hist_init = new _GrapheneApi2.default(_this4, "history");
+                var net_init = new _GrapheneApi2.default(_this4, "network_broadcast");
                 return Promise.all([db_init.init(), hist_init.init(), net_init.init()]);
             }).then(function (_apis) {
                 var _apis2 = _slicedToArray(_apis, 1),
@@ -250,13 +258,13 @@ var ChainWebSocket = function () {
             logger.log("reconnect to " + this.ws_url + ",and keepEvent: " + keepEvent);
 
             this._clearDefaultListeners();
-            var oldListeners = this._rws.listeners;
+            var oldListeners = this._rws.keep_listeners;
             var oldOnceListeners = this._rws.once_listeners;
             this._init(this.ws_url, this.options, callback);
 
             if (keepEvent) {
                 this._rws.assignEventListener(oldListeners);
-                this._rws.assignEventListener(oldOnceListeners);
+                this._rws.assignEventListener(oldOnceListeners, true);
             }
         }
 

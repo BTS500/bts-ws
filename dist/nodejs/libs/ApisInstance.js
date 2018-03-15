@@ -46,7 +46,7 @@ var ApisInstance = function () {
             var _this2 = this;
 
             if (typeof callback !== "function") {
-                throw new TypeError("callback parameters can only be a function type.");
+                throw new ReferenceError("callback parameters can only be a function type.");
             }
 
             if (!this.ws_url || !/^ws{1,2}:\/\//.test(this.ws_url.toLowerCase())) {
@@ -174,7 +174,7 @@ var ApisInstance = function () {
         /**
          * Set the blockchain ID
          *
-         * @param chainResult ApiResult Type
+         * @param chainResult "get_chain_id" return result
          */
 
     }], [{
@@ -187,6 +187,8 @@ var ApisInstance = function () {
 
         /**
          * Get the default configuration items
+         *
+         * @return Object
          */
 
     }, {
@@ -200,6 +202,10 @@ var ApisInstance = function () {
 
         /**
          * Static method, get a singleton instance
+         *
+         * @param url Connection address
+         * @param options Configuration parameters
+         * @return ApisInstance Singleton object
          */
         value: function instance() {
             var url = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "ws://localhost:8090";
@@ -210,6 +216,8 @@ var ApisInstance = function () {
 
             if (singletonInst === null) {
                 singletonInst = new ApisInstance(url, options);
+            } else {
+                logger.log("Your configuration parameters have been abandoned. Please use the object properties to modify.");
             }
 
             return singletonInst;
